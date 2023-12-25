@@ -48,7 +48,7 @@ export const editEmployeeService = (employeeData) =>
 
 // 新增档案接口
 export const addEmployeeService = (employeeData) =>
-  request.post('/api/v1/employee', employeeData);
+  request.post('/api/v1/employee/add', employeeData);
 
 // 根据档案编号获取详细信息接口
 export const getEmployeeInfoService = (eID) =>

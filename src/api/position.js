@@ -26,4 +26,4 @@ export const removePositionService = (pID) =>
 
 // 获取职位列表接口
 export const getPositionListService = () =>
-  request.get('/api/v1/position/list')
+  request.get('/api/v1/position/getAll')

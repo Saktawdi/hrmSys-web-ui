@@ -36,4 +36,4 @@ export const removeSalaryService = (sID) =>
 
 // 获取薪资标准列表接口
 export const getSalaryListService = () =>
-  request.get('/api/v1/salary/list')
+  request.get('/api/v1/salary/getAll')
