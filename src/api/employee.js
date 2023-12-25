@@ -42,22 +42,42 @@ import request from '@/utils/request.js';
  * @property {string} eid - Employee ID
  */
 
-// 修改档案接口
-export const editEmployeeService = (employeeData) =>
-  request.put('/api/v1/employee', employeeData);
+// 更新员工档案
+export const updateEmployeeService = (employeeData) =>
+  request.put('/api/v1/employee/update', { ...employeeData });
 
-// 新增档案接口
+// 恢复指定 ID 的员工档案
+export const recoverEmployeeService = (eID) =>
+  request.put(`/api/v1/employee/recover/${eID}`);
+
+// 审核员工档案
+export const approveEmployeeService = (employeeData) =>
+  request.put('/api/v1/employee/approved', { ...employeeData });
+
+// 根据 ID 审核员工档案
+export const approveEmployeeByIdService = (eID) =>
+  request.put(`/api/v1/employee/approvedByID/${eID}`);
+
+// 根据条件查询员工档案
+export const getEmployeesByConditionsService = (conditions) =>
+  request.post('/api/v1/employee/getByConditions', conditions);
+
+// 新增员工档案
 export const addEmployeeService = (employeeData) =>
-  request.post('/api/v1/employee/add', employeeData);
+  request.post('/api/v1/employee/add', { ...employeeData });
 
-// 根据档案编号获取详细信息接口
-export const getEmployeeInfoService = (eID) =>
-  request.get(`/api/v1/employee/${eID}`);
+// 根据状态获取员工档案
+export const getEmployeeByStatusService = (eStatus) =>
+  request.get(`/api/v1/employee/getByStatus/${eStatus}`);
 
-// 删除档案接口
-export const removeEmployeeService = (eID) =>
-  request.delete(`/api/v1/employee/${eID}`);
+// 获取所有员工档案
+export const getAllEmployeesService = () =>
+  request.get('/api/v1/employee/getAll');
 
-// 获取档案列表接口
-export const getEmployeeListService = () =>
-  request.get('/api/v1/employee/list');
+// 根据 ID 获取员工档案
+export const getEmployeeByIdService = (eID) =>
+  request.get(`/api/v1/employee/get/${eID}`);
+
+// 根据 ID 删除员工档案
+export const deleteEmployeeService = (eID) =>
+  request.delete(`/api/v1/employee/delete/${eID}`);

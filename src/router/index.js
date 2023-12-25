@@ -31,6 +31,10 @@ const router = createRouter({
           component:() =>import('@/views/employee/EmployeeAddPage.vue')
         },
         {
+          path: '/employee/info',//档案详情
+          component:() =>import('@/views/employee/EmployeeInfo.vue')
+        },
+        {
           path: '/employee/manage',
           component:()=> import('@/views/employee/EmployeePage.vue')
         },

@@ -31,6 +31,9 @@
             <el-form-item label="菜单编码" prop="mcode">
               <el-input v-model="currentMenu.mcode"></el-input>
             </el-form-item>
+            <el-form-item label="菜单编码" prop="sort">
+              <el-input-number v-model="currentMenu.sort" :min="0" :max="99" @change="handleChange" />
+            </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取消</el-button>
@@ -51,7 +54,10 @@
       return {
         menus: [],
         dialogVisible: false,
-        currentMenu: {},
+        currentMenu: {
+          parentId:null,
+          sort:0
+        },
         menuRules: {
           mname: [{ required: true, message: '菜单名称为必填项', trigger: 'blur' }],
           mcode: [{ required: true, message: '菜单代码是必需的', trigger: 'blur' }],
@@ -115,6 +121,8 @@
     mounted() {
       this.getAllMenus();
       this.permissions = userStore.auth.permission;
+      this.currentMenu.sort = 0;
+      this.currentMenu.parentId = null;
     },
   };
   </script>
