@@ -1,0 +1,266 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "数据库实践",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "菜单接口模块"
+    }
+  ],
+  "paths": {
+    "/api/v1/menu/update": {
+      "put": {
+        "summary": "更新菜单",
+        "x-apifox-folder": "菜单接口模块",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "json数据，看菜单实体类，全属性必须",
+        "operationId": "updateMenu",
+        "tags": [
+          "菜单接口模块"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Menu"
+              },
+              "example": ""
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://apifox.com/web/project/3804440/apis/api-136085901-run"
+      }
+    },
+    "/api/v1/menu/add": {
+      "post": {
+        "summary": "添加菜单",
+        "x-apifox-folder": "菜单接口模块",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "json数据，看菜单实体类，全属性必须",
+        "operationId": "addMenu",
+        "tags": [
+          "菜单接口模块"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Menu"
+              },
+              "example": ""
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://apifox.com/web/project/3804440/apis/api-136085902-run"
+      }
+    },
+    "/api/v1/menu/get/{id}": {
+      "get": {
+        "summary": "获取菜单",
+        "x-apifox-folder": "菜单接口模块",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "id",
+        "operationId": "getMenu",
+        "tags": [
+          "菜单接口模块"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://apifox.com/web/project/3804440/apis/api-136085903-run"
+      }
+    },
+    "/api/v1/menu/all": {
+      "get": {
+        "summary": "获取所有菜单",
+        "x-apifox-folder": "菜单接口模块",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "无参数",
+        "operationId": "getAllMenus",
+        "tags": [
+          "菜单接口模块"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://apifox.com/web/project/3804440/apis/api-136085904-run"
+      }
+    },
+    "/api/v1/menu/delete/{id}": {
+      "delete": {
+        "summary": "删除菜单",
+        "x-apifox-folder": "菜单接口模块",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "id",
+        "operationId": "deleteMenu",
+        "tags": [
+          "菜单接口模块"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://apifox.com/web/project/3804440/apis/api-136085905-run"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SaResult": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "x-apifox-orders": [],
+            "properties": {},
+            "x-apifox-ignore-properties": []
+          },
+          "msg": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": {
+          "type": "object",
+          "x-apifox-orders": []
+        },
+        "x-apifox-orders": [
+          "data",
+          "msg",
+          "code",
+          "empty"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "Schemas"
+      },
+      "Menu": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "菜单id",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "description": "父菜单id",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "integer",
+            "description": "菜单排序",
+            "format": "int32"
+          },
+          "mname": {
+            "type": "string"
+          },
+          "mcode": {
+            "type": "string"
+          }
+        },
+        "description": "菜单实体类",
+        "x-apifox-orders": [
+          "id",
+          "parentId",
+          "sort",
+          "mname",
+          "mcode"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "Schemas"
+      }
+    }
+  },
+  "servers": []
+}
