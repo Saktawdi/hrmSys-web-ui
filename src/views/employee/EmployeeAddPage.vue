@@ -79,10 +79,10 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="性别" prop="egender">
-                            <el-radio-group v-model="form.egender">
-                                <el-radio label="男">男</el-radio>
-                                <el-radio label="女">女</el-radio>
-                            </el-radio-group>
+                            <el-select v-model="form.egender">
+                                <el-option label="男" value="男"></el-option>
+                                <el-option label="女" value="女"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -159,7 +159,12 @@
                 <el-row :gutter="20">
                     <el-col :span="8">
                         <el-form-item label="民族" prop="eethnic">
-                            <el-input v-model="form.eethnic"></el-input>
+                            <el-select v-model="form.eethnic">
+                                <el-option label="汉" value="汉"></el-option>
+                                <el-option label="回" value="回"></el-option>
+                                <el-option label="满" value="满"></el-option>
+                                <el-option label="藏" value="藏"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
@@ -192,12 +197,19 @@
                 <el-row :gutter="20">
                     <el-col :span="8">
                         <el-form-item label="学历" prop="eeducation">
-                            <el-input v-model="form.education"></el-input>
+
+                            <el-select v-model="form.eeducation">
+                                <el-option label="博士" value="博士"></el-option>
+                                <el-option label="硕士" value="硕士"></el-option>
+                                <el-option label="本科" value="本科"></el-option>
+                                <el-option label="专科" value="专科"></el-option>
+                                <el-option label="高中" value="高中"></el-option>
+                            </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="专业" prop="emajor">
-                            <el-input v-model="form.major"></el-input>
+                            <el-input v-model="form.emajor"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
@@ -212,9 +224,7 @@
                     <el-col :span="8">
                         <el-form-item label="薪酬标准" prop="esalary">
                             <el-select v-model="form.esalary" placeholder="请选择">
-                                <el-option v-for="item in salaryBasic"
-                                    :key="item.sid"
-                                    :label="item.sbasic"
+                                <el-option v-for="item in salaryBasic" :key="item.sid" :label="item.sbasic"
                                     :value="item.sid">
                                 </el-option>
                             </el-select>
@@ -277,6 +287,8 @@ export default {
                 erecoders: "-1",
                 eavatar: "",
                 egender: "男",
+                eethnic: "汉",
+                eeducation: "本科",
             },
             rules: {
                 el1InstID: [{ required: true, message: "请选择Ⅰ级机构", trigger: "change" }],
@@ -304,11 +316,11 @@ export default {
     },
     methods: {
         handleAvatarSuccess(response, file) {
-            if(response.status === true){
+            if (response.status === true) {
                 console.log('Avatar uploaded successfully:', response.data.links.url);
                 ElMessage.success("上传头像成功")
                 this.form.eavatar = response.data.links.url;
-            }else{
+            } else {
                 ElMessage.error('上传头像失败');
             }
         },
@@ -425,6 +437,10 @@ export default {
 </script>
   
 <style scoped>
+.avatar{
+    max-height: 64px;
+    max-width: 64px;
+}
 .avatar-uploader-icon {
     width: 64px;
     height: 64px;

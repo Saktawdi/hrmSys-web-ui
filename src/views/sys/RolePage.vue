@@ -2,19 +2,20 @@
     <page-container title="角色管理">
         <div>
             <el-card>
-                <el-button v-if="permissions.indexOf('role.add')> -1 || permissions.indexOf('role.*')> -1" type="primary" @click="addRole">新增角色</el-button>
+                <el-button v-if="permissions.indexOf('role.add') > -1 || permissions.indexOf('role.*') > -1" type="primary"
+                    @click="addRole">新增角色</el-button>
             </el-card>
             <el-table :data="roles" style="width: 100%">
                 <el-table-column prop="rid" label="Role ID"></el-table-column>
                 <el-table-column prop="rname" label="Role Name"></el-table-column>
                 <el-table-column prop="rcode" label="Role Code"></el-table-column>
                 <el-table-column label="操作">
-                    <template  #default="scope">
-                        <el-button type="success" plain>分配权限</el-button>
-                        <el-button v-if="permissions.indexOf('role.update')> -1 || permissions.indexOf('role.*')> -1"
-                        type="primary" @click="editRole(scope.row)">编辑</el-button>
-                        <el-button v-if="permissions.indexOf('role.delete')> -1 || permissions.indexOf('role.*')> -1"
-                        type="danger" @click="deleteRole(scope.row.rid)">删除</el-button>
+                    <template #default="scope">
+                        <el-button type="success" plain @click="assignPermissions(scope.row)">分配权限</el-button>
+                        <el-button v-if="permissions.indexOf('role.update') > -1 || permissions.indexOf('role.*') > -1"
+                            type="primary" @click="editRole(scope.row)">编辑</el-button>
+                        <el-button v-if="permissions.indexOf('role.delete') > -1 || permissions.indexOf('role.*') > -1"
+                            type="danger" @click="deleteRole(scope.row.rid)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -49,21 +50,30 @@ export default {
         return {
             roles: [],
             dialogVisible: false,
-            currentRole: {}, 
+            currentRole: {},
             roleRules: {
                 rname: [{ required: true, message: 'Role Name is required', trigger: 'blur' }],
                 rcode: [{ required: true, message: 'Role Code is required', trigger: 'blur' }],
             },
-            permissions:[],
-            optionKey:"" // 操作key
+            permissions: [],
+            optionKey: "" // 操作key
         };
     },
     methods: {
+        assignPermissions(row) {
+            this.$router.push({
+                path: '/sys/auth', 
+                query: {
+                    roleID: row.rid,
+                    roleName:row.rname
+                },
+            });
+        },
         getAllRoles() {
             roleApi.getAllRolesService().then((response) => {
                 this.roles = response.data.data;
             }).catch((error) => {
-                console.error('Error fetching roles:', error);
+                ElMessage.error('Error fetching roles:', error);
             });
         },
         addRole() {
@@ -85,7 +95,7 @@ export default {
                             this.getAllRoles();
                             this.dialogVisible = false; // Close the dialog
                         }).catch((error) => {
-                            console.error('更新角色时出错:', error);
+                            ElMessage.error('更新角色时出错:', error);
                         });
                     } else {
                         roleApi.addRoleService(this.currentRole).then(() => {
@@ -93,7 +103,7 @@ export default {
                             this.getAllRoles();
                             this.dialogVisible = false; // Close the dialog
                         }).catch((error) => {
-                            console.error('新增角色失败', error);
+                            ElMessage.error('新增角色失败', error);
                         });
                     }
                 } else {
@@ -106,7 +116,7 @@ export default {
                 ElMessage.success('删除成功');
                 this.getAllRoles();
             }).catch((error) => {
-                console.error('删除失败', error);
+                ElMessage.error('删除失败', error);
             });
         },
     },

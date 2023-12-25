@@ -43,6 +43,11 @@ const router = createRouter({
           component: () => import('@/views/sys/UserPage.vue')
         },
         {
+          name:"AuthPage",
+          path:"/sys/auth", // 权限分配
+          component: ()=> import("@/views/sys/auth/AuthPage.vue")
+        },
+        {
           path: '/employee/add', //档案登记
           component: () => import('@/views/employee/EmployeeAddPage.vue')
         },
