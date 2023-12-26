@@ -9,3 +9,12 @@
     <el-table-column fixed="right" label="登记" width="120" />
   </el-table>
 </template>
+<script>
+export default {
+
+}
+</script>
+
+<style>
+
+</style>

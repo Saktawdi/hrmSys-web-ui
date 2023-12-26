@@ -105,12 +105,26 @@ export default {
             });
         },
         deleteUser(uid) {
-            userApi.deleteUserByIdService(uid).then(() => {
-                ElMessage.success('用户删除成功');
-                this.getAllUsers();
-            }).catch((error) => {
-                console.error('Error deleting user:', error);
-            });
+            ElMessageBox.confirm('你确定要删除用户吗?', '注意', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning', // Adjust the type based on your design preference
+            })
+                .then(() => {
+                    // User clicked '确定'
+                    userApi.deleteUserByIdService(uid)
+                        .then(() => {
+                            ElMessage.success('用户删除成功');
+                            this.getAllUsers();
+                        })
+                        .catch((error) => {
+                            console.error('Error deleting user:', error);
+                        });
+                })
+                .catch(() => {
+                    // User clicked '取消' or closed the dialog
+                    // No action needed
+                });
         },
     },
     mounted() {

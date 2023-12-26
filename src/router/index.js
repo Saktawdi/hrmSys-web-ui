@@ -64,6 +64,14 @@ const router = createRouter({
           component: () => import('@/views/employee/EmployeePage.vue')
         },
         {
+          path:"/institution", //机构管理
+          component: () => import('@/views/institution/InstitutionPage.vue')
+        },
+        {
+          path:"/position", //职位管理
+          component: () => import('@/views/position/PositionPage.vue')
+        },
+        {
           path: '/salary/add', //薪酬登记
           component: () => import('@/views/salary/SalaryRegister.vue')
         },

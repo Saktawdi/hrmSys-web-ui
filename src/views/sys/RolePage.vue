@@ -62,10 +62,10 @@ export default {
     methods: {
         assignPermissions(row) {
             this.$router.push({
-                path: '/sys/auth', 
+                path: '/sys/auth',
                 query: {
                     roleID: row.rid,
-                    roleName:row.rname
+                    roleName: row.rname
                 },
             });
         },
@@ -112,13 +112,28 @@ export default {
             });
         },
         deleteRole(rID) {
-            roleApi.deleteRoleService(rID).then(() => {
-                ElMessage.success('删除成功');
-                this.getAllRoles();
-            }).catch((error) => {
-                ElMessage.error('删除失败', error);
-            });
+            ElMessageBox.confirm('你确定要删除角色吗?', '注意', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning', // Adjust the type based on your design preference
+            })
+                .then(() => {
+                    // User clicked '确定'
+                    roleApi.deleteRoleService(rID)
+                        .then(() => {
+                            ElMessage.success('删除成功');
+                            this.getAllRoles();
+                        })
+                        .catch((error) => {
+                            ElMessage.error('删除失败', error);
+                        });
+                })
+                .catch(() => {
+                    // User clicked '取消' or closed the dialog
+                    // No action needed
+                });
         },
+
     },
     mounted() {
         this.getAllRoles();
