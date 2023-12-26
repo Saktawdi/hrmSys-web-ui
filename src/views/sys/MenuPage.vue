@@ -132,7 +132,6 @@ export default {
           // No action needed
         });
     },
-
   },
   mounted() {
     this.getAllMenus();

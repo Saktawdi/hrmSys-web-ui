@@ -60,7 +60,7 @@ export const approveEmployeeByIdService = (eID) =>
 
 // 根据条件查询员工档案
 export const getEmployeesByConditionsService = (conditions) =>
-  request.post('/api/v1/employee/getByConditions', conditions);
+  request.get('/api/v1/employee/getByConditions', conditions);
 
 // 新增员工档案
 export const addEmployeeService = (employeeData) =>

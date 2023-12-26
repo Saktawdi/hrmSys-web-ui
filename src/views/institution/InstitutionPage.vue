@@ -6,9 +6,10 @@
                     permissions.indexOf('institution.*') > -1
                     " type="primary" @click="addInstitution">新增机构</el-button>
             </el-card>
-            <el-table :data="institution" style="width: 100%">
-                <el-table-column prop="iid" label="序号"></el-table-column>
-                <el-table-column prop="iparent" label="父级机构"></el-table-column>
+            <el-table :data="institutionTree" lazy :load="loadData" row-key="iid"
+                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
+                <!-- <el-table-column prop="iid" label="序号"></el-table-column> -->
+                <!-- <el-table-column prop="iparent" label="父级机构"></el-table-column> -->
                 <el-table-column prop="ilevel" label="机构等级">
                     <template #default="scope">
                         <el-tag :type="getTagType(scope.row.ilevel)">{{ scope.row.ilevel }}</el-tag>
@@ -59,6 +60,7 @@ export default {
     data() {
         return {
             institution: [],
+            institutionTree: [],//符合组件要求的树型数据结构
             dialogVisible: false,
             currentMenu: {},
             institutionRules: {
@@ -72,9 +74,11 @@ export default {
                 ]
             },
             permissions: [],
-            optionKey: '' // 操作key
+            optionKey: '',// 操作key
+            loding: true // 加载
         }
     },
+
     methods: {
         getTagType(ilevel) {
             switch (ilevel) {
@@ -92,11 +96,62 @@ export default {
             institutionApi
                 .getAllInstitutionsService()
                 .then((response) => {
-                    this.institution = response.data.data
+                    this.institution = response.data.data;
+                    this.institutionTree = this.institution;
+                    //先求出顶层节点到Tree数据结构
+                    this.findFirstLevel(this.institution)
                 })
                 .catch((error) => {
-                    console.error('Error fetching institution:', error)
+                    console.error('获取机构时出错:', error)
                 })
+        },
+        //TODO:树形结构转换
+        findFirstLevel(list) {
+            // 记录所有的parentId和id
+            const allParentId = [];
+            const allId = [];
+            list.forEach((item) => {
+                if (!allParentId.includes(item.iparent)) {
+                    allParentId.push(item.iparent);
+                }
+                if (!allId.includes(item.iid)) {
+                    allId.push(item.iid);
+                }
+            });
+            // 先筛选出 父节点在所有数据中不存在的 --无父节点 --顶层节点
+            this.institutionTree = list.filter((item) => !allId.includes(item.iparent));
+            // 再判断顶级节点是否有孩子 --hasChildren的值的判断
+            this.institutionTree.forEach((item) => {
+                if (allParentId.includes(item.iid)) {
+                    item.hasChildren = true;
+                }
+            });
+        },
+        loadData(row, treeNode, resolve) {
+            resolve(this.flagChildren(this.institution, row));
+        },
+        //判断数组中有没有自己的孩子 -- 返回一个加上是否有孩子标识字段的孩子数组
+        flagChildren(list, parentItem, config = {}) {
+            // list是扁平化数组  parentItem是点击的行的数据对象 config是参数配置
+            config = Object.assign({}, { iid: "iid", iparent: "iparent" }, config);
+            const allParentId = [];
+            list.forEach((item) => {
+                if (!allParentId.includes(item[config.iparent])) {
+                    allParentId.push(item[config.iparent]);
+                }
+            });
+            // 筛选出是这个节点孩子的 节点的数组
+            const childrenArr = list.filter((item) => {
+                return item[config.iparent] == parentItem[config.iid];
+            });
+            childrenArr.forEach((item) => {
+                console.log("遍历孩子对象：",item)
+                if (allParentId.includes(item[config.iid])) {
+                    // 证明有孩子节点
+                    item["hasChildren"] = true;
+                }
+            });
+            return childrenArr;
         },
         addInstitution() {
             this.currentMenu = {}
@@ -163,17 +218,18 @@ export default {
                 });
         },
     },
-    getInstitutionByiParent(iparent) {
-        institutionApi
-            .getInstitutionByiParentService(iparent)
-            .then(() => {
-                ElMessage.success('成功获取父类信息')
-                this.getAllInstitution()
-            })
-            .catch((error) => {
-                console.error('获取父类信息时出错:', error)
-            })
-    },
+
+    // getInstitutionByiParent(iparent) {
+    //     institutionApi
+    //         .getInstitutionByiParentService(iparent)
+    //         .then(() => {
+    //             ElMessage.success('成功获取父类信息')
+    //             this.getAllInstitution()
+    //         })
+    //         .catch((error) => {
+    //             console.error('获取父类信息时出错:', error)
+    //         })
+    // },
     //TODO:根据机构编号判断是否为父类
     //TODO:根据父类ID获取机构详细信息
     //TODO:根据等级和父类ID获取机构详细信息
