@@ -72,7 +72,7 @@ export default {
         handleClick(tab, event) {
             if (tab.paneName === "auth") {
                 this.activeName = 'auth'
-                this.$refs.tree.setCheckedKeys(this.checkList, false);
+                this.fetchRoleMenus();
             }
             if (tab.paneName === "user") {
                 this.activeName = "user"
@@ -121,6 +121,7 @@ export default {
                     if(!checked.includes(item)){
                         authApi.deleteMenuService(roleId,item)
                         .then(response => {
+
                         })
                         .catch(error => {
                             console.error(`Error adding 权限 ${item} to role ${roleId}:`, error);
@@ -157,8 +158,8 @@ export default {
                     console.error('获取角色的选定用户时出错:', error);
                 });
         },
-        fetchAllMenus() {
-            getAllMenusService()
+        async fetchAllMenus() {
+            await getAllMenusService()
                 .then((response) => {
                     this.menus = response.data.data;
                     this.menuTree[0].children = this.convertToTree(this.menus);

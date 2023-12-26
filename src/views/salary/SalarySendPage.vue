@@ -19,15 +19,16 @@
       <el-tab-pane label="发放" name="send">
         <el-card>
           <el-button type="primary" @click="AutoSendHandler">一键发放</el-button>
-          <el-button type="primary">定时发放</el-button>
+          <el-button type="primary" @click="showTaskHandler">定时发放</el-button>
         </el-card>
         <el-table :data="PayrollSend" style="width: 100%" border>
-          <el-table-column prop="pid" label="薪酬发放单编号" />
-          <el-table-column prop="pl1InstName" label="一级机构" />
-          <el-table-column prop="pl2InstName" label="二级机构" />
-          <el-table-column prop="pl3InstName" label="三级机构" />
+          <el-table-column prop="pid" label="薪酬发放单编号" width="124px" />
+          <el-table-column prop="pl1InstName" label="一级机构" width="124px" />
+          <el-table-column prop="pl2InstName" label="二级机构" width="124px" />
+          <el-table-column prop="pl3InstName" label="三级机构" width="124px" />
           <el-table-column prop="pcount" label="人数" />
           <el-table-column prop="psalarySum" label="基本酬薪总额" />
+          <el-table-column prop="lastExecutionTime" label="最近发放时间" />
           <el-table-column prop="pstatus" label="状态">
             <template #default="scope">
               <el-tag :type="getTagType(scope.row.pstatus)">{{ getTagName(scope.row.pstatus) }}</el-tag>
@@ -116,10 +117,43 @@
       </div>
     </el-card>
   </el-dialog>
+  <el-dialog v-model="showTaskSetting" title="定时任务设置" width="30%" :before-close="handleClose">
+    <el-form :model="taskSettingForm">
+      <el-row :gutter="20">
+        <el-col :span="6">
+          <el-form-item label="10秒一结">
+            <el-switch v-model="taskSettingForm.testFlag" @change="switchHandler('testFlag')" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="日结">
+            <el-switch v-model="taskSettingForm.dayFlag" @change="switchHandler('dayFlag')" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="周结">
+            <el-switch v-model="taskSettingForm.weekFlag" @change="switchHandler('weekFlag')" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="月结">
+            <el-switch v-model="taskSettingForm.monthFlag" @change="switchHandler('monthFlag')" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <div class="centered-buttons">
+        <el-button class="custom-button" type="primary" @click="showTaskSetting = false">关闭</el-button>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script>
 import * as payrollApi from "../../api/payroll"
+import * as taskApi from "../../api/task"
+
 import { useUserStore } from '@/stores'
 import { ElMessage } from 'element-plus';
 const userStore = useUserStore();
@@ -133,6 +167,9 @@ export default {
       currentPayroll: {},//表单
       currentPayrollTable: [],//该发放单旗下的所有档案
       dialogVisible: false,
+      showTaskSetting: false,
+      taskSettingForm: {},
+      taskRecoder: [], //执行记录
     }
   },
   mounted() {
@@ -150,7 +187,37 @@ export default {
         this.activeName = "send"
         this.optionKey = '详细'
         this.feachPayrollSendList();
+        this.feachTaskRecoder();
       }
+    },
+    async feachTaskSetting(){
+      taskApi.getAllTasksService()
+      .then((res)=>{
+        this.taskSettingForm =  res.data.data;
+      })
+      .catch((error)=>{
+        ElMessage.error(error)
+      })
+    },
+    async feachTaskRecoder() {
+      await taskApi.getAllRecoder()
+        .then((res) => {
+          this.taskRecoder = res.data.data;
+          this.PayrollSend = this.PayrollSend.map(payroll => {
+            // 查找 taskRecoder 中匹配的对象
+            const matchingRecord = this.taskRecoder.find(record => record.pid === payroll.pid);
+            // 如果找到匹配的记录，将 lastExecutionTime 赋值到 PayrollSend 中
+            if (matchingRecord) {
+              payroll['lastExecutionTime'] = matchingRecord.lastExecutionTime;
+              // console.log("匹配::",payroll)
+            }
+            return payroll;
+          });
+          // console.log("赋值后:",this.PayrollSend)
+        })
+        .catch((error) => {
+          ElMessage.error("查询记录:",error)
+        })
     },
     feachLivePayrollList() {
       payrollApi.getAllPayrollsService()
@@ -161,10 +228,13 @@ export default {
           ElMessage.error("获取失败,", error)
         })
     },
-    feachPayrollSendList() {
-      payrollApi.getStaticPayrollsService()
+    async feachPayrollSendList() {
+      await payrollApi.getStaticPayrollsService()
         .then((response) => {
           this.PayrollSend = response.data.data;
+          this.PayrollSend.forEach(payroll => {
+            payroll['lastExecutionTime'] = "N/A"
+          });
         })
         .catch((error) => {
           ElMessage.error("获取失败,", error)
@@ -217,8 +287,10 @@ export default {
         payrollApi.updateStaticPayrollByID(this.currentPayroll.pid, 1)
           .then((response) => {
             ElMessage.success("发放成功")
+            taskApi.updateRecoder(this.currentPayroll.pid);
             this.dialogVisible = false;
             this.feachPayrollSendList();
+            this.feachTaskRecoder();
           })
           .catch((error) => {
             ElMessage.error("发放失败，", error)
@@ -243,6 +315,43 @@ export default {
           })
       });
       loading.close();
+    },
+    //定时任务按钮
+    showTaskHandler() {
+      taskApi.getAllTasksService()
+        .then((response) => {
+          this.taskSettingForm = response.data.data;
+          this.showTaskSetting = true;
+        })
+        .catch((error) => {
+          ElMessage.error("获取任务flag失败", error)
+        })
+    },
+    //某个开关按下
+    async switchHandler(taskType) {
+      //关闭其他开关
+      Object.keys(this.taskSettingForm).forEach((key) => {
+        if (key !== taskType) {
+          this.taskSettingForm[key] = false;
+        }
+      });
+      //关闭服务器任务
+      Object.keys(this.taskSettingForm).forEach((key) => {
+        taskApi.StopTaskService(key);
+      });
+      //如果这次按下是开启
+      if (this.taskSettingForm[taskType]) {
+        taskApi.StartTaskService(taskType)
+          .then((response) => {
+            ElMessage.success(response.data.msg)
+            this.feachTaskSetting();
+          })
+          .catch((error) => {
+            ElMessage.error(error)
+          })
+      } else {
+        ElMessage.success("关闭目标任务成功")
+      }
     },
     //登记详情里更改对应奖金：
     updateBonus(data) {
