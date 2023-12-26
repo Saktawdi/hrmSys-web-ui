@@ -398,8 +398,7 @@ export default {
         },
 
         fetchSalaryList() {
-            //TODO:根据状态为1查询薪资标准列表，等待api接口
-            salary.getSalaryListService()
+            salary.getSalaryByStatusService(1)
                 .then((response) => {
                     this.salaryBasic = response.data.data;
                 })

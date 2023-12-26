@@ -82,7 +82,7 @@ export default {
         saveUser() {
             this.$refs.userForm.validate((valid) => {
                 if (valid) {
-                    if (this.currentUser.uid) {
+                    if (this.optionKey === "编辑") {
                         userApi.updateUserProfileService(this.currentUser).then(() => {
                             ElMessage.success('用户信息更新成功');
                             this.getAllUsers();
@@ -100,7 +100,7 @@ export default {
                         });
                     }
                 } else {
-                    ElMessage.error('Validation failed');
+                    ElMessage.error('验证失败');
                 }
             });
         },

@@ -22,7 +22,7 @@
 
             <el-dialog v-model="dialogVisible" :title="optionKey + '角色'">
                 <el-form :model="currentRole" :rules="roleRules" ref="roleForm" label-width="80px">
-                    <el-form-item label="角色编号" prop="rid">
+                    <el-form-item label="角色编号" prop="rid" v-if="optionKey === '编辑'">
                         <el-input v-model="currentRole.rid"></el-input>
                     </el-form-item>
                     <el-form-item label="角色名称" prop="rname">

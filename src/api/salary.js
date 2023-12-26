@@ -30,6 +30,11 @@ export const addSalaryService = (salaryData) =>
 export const getSalaryInfoService = (sID) =>
   request.get(`/api/v1/salary/${sID}`)
 
+// 根据薪酬状态获取薪资标准列表接口
+export const getSalaryByStatusService = (sStatus) =>
+request.get(`/api/v1/salary/getByStatus/${sStatus}`)
+  
+
 // 删除薪资标准接口
 export const removeSalaryService = (sID) =>
   request.delete(`/api/v1/salary/${sID}`)

@@ -7,19 +7,19 @@
                 <el-row :gutter="20">
                     <el-col :span="8">
                         <el-form-item label="I级机构" prop="el1InstID">
-                            <el-select v-model="form.el1InstID" placeholder="请选择">
+                            <el-select v-model="form.el1InstID" placeholder="请选择" disabled="true">
                             </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="Ⅱ级机构" prop="el2InstID">
-                            <el-select v-model="form.el2InstID" placeholder="请先选择上级机构">
+                            <el-select v-model="form.el2InstID" placeholder="请先选择上级机构" disabled="true">
                             </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="Ⅲ级机构" prop="el3InstID">
-                            <el-select v-model="form.el3InstID" placeholder="请先选择上级机构">
+                            <el-select v-model="form.el3InstID" placeholder="请先选择上级机构" disabled="true">
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -28,15 +28,15 @@
                 <el-row :gutter="20">
                     <el-col :span="8">
                         <el-form-item label="职位分类" prop="epositionCategory">
-                            <el-select v-model="form.epositionCategory" placeholder="请选择" @change="updatePositions">
+                            <el-select v-model="form.epositionCategory" placeholder="请选择" disabled="true">
 
                             </el-select>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="职位名称" prop="epositionName">
-                            <el-select v-model="form.epositionName" placeholder="请先选择分类">
-                                
+                            <el-select v-model="form.epositionName" placeholder="请先选择分类" disabled="true">
+
                             </el-select>
                         </el-form-item>
                     </el-col>
@@ -206,14 +206,16 @@
                         </el-form-item>
                     </el-col>
                 </el-row>
-
                 <!-- 第十行 -->
+                <!-- TODO:注意，这里是用的sbasic作为选值 -->
                 <el-row :gutter="20">
                     <el-col :span="8">
                         <el-form-item label="薪酬标准" prop="esalary">
                             <el-select v-model="form.esalary" placeholder="请选择">
-                                <el-option v-for="item in salaryBasic" :key="item.sid" :label="item.sbasic"
-                                    :value="item.sid">
+                                <el-option v-for="item in salaryBasic" 
+                                    :key="item.sid" 
+                                    :label="item.sbasic"
+                                    :value="item.sbasic">
                                 </el-option>
                             </el-select>
                         </el-form-item>
@@ -263,6 +265,9 @@
 </template>
 
 <script>
+import * as salary from "../../api/salary"
+import {updateEmployeeService,approveEmployeeService} from "../../api/employee"
+
 export default {
     data() {
         return {
@@ -275,16 +280,17 @@ export default {
             },
             activeCode: "", //方法
             activeName: "",
-            parentPath:"",
+            parentPath: "",
+            salaryBasic: [], // 基础薪酬工资
         }
     },
     created() {
         const formDataString = this.$route.query.formData;
         this.activeCode = this.$route.query.functionKey;
         this.parentPath = this.$route.query.pathKey
-        if(this.activeCode === "update"){
+        if (this.activeCode === "update") {
             this.activeName = "变更"
-        }else if(this.activeCode === "review"){
+        } else if (this.activeCode === "review") {
             this.activeName = "复核通过"
         }
         if (formDataString) {
@@ -293,33 +299,81 @@ export default {
         }
     },
     mounted() {
-
+        this.fetchSalaryList();
     },
     methods: {
-        cancel(){
+        cancel() {
             this.$router.push(this.parentPath)
+        },
+        async fetchSalaryList() {
+            await salary.getSalaryByStatusService(1)
+                .then((response) => {
+                    this.salaryBasic = response.data.data;
+                    this.salaryBasic.forEach(item => {
+                        if (item.sid.toString() === this.form.esalary) {
+                            this.form.esalary = item.sbasic
+                        }
+                    });
+                })
+                .catch((error) => {
+                    ElMessage.error('获取薪资列表时出错:', error);
+                });
+        },
+        submitForm(){
+            this.$refs.hrForm.validate((valid) => {
+                if(valid){
+                    //转换成编号
+                    this.salaryBasic.forEach(item => {
+                        if (item.sbasic === this.form.esalary) {
+                            this.form.esalary = item.sid
+                        }
+                    });
+                    if (this.activeCode === "update"){
+                        this.form.estatus = 0
+                        updateEmployeeService(this.form)
+                        .then((response)=>{
+                            ElMessage.success(response.data.msg);
+                            this.cancel();
+                        })
+                        .catch((error) => {
+                            ElMessage.error("更新出错：",error);
+                        })
+                    }else if(this.activeCode === "review"){
+                        approveEmployeeService(this.form)
+                        .then((response)=>{
+                            ElMessage.success(response.data.msg);
+                            this.cancel();
+                        })
+                        .catch((error) => {
+                            ElMessage.error("复核通过时出错：",error);
+                        })
+                    }
+                }
+            })
         }
     }
 }
 </script>
 
 <style>
-.avatar{
+.avatar {
     max-height: 64px;
     max-width: 64px;
 }
+
 .avatar-uploader-icon {
     width: 64px;
     height: 64px;
     border: 1px solid;
 }
+
 .option_box {
-  text-align: center;
+    text-align: center;
 }
 
 .button_submit {
-  width: 30%;
-  margin-right: 10px; /* 可选：如果你希望按钮之间有一些间隔，可以添加一些 margin */
+    width: 30%;
+    margin-right: 10px;
+    /* 可选：如果你希望按钮之间有一些间隔，可以添加一些 margin */
 }
-
 </style>
