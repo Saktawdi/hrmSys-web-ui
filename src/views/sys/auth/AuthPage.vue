@@ -68,9 +68,14 @@ export default {
         this.fetchRoleMenus();
     },
     methods: {
+        //tab变更
         handleClick(tab, event) {
-            if (this.activeName === "auth") {
+            if (tab.paneName === "auth") {
+                this.activeName = 'auth'
                 this.$refs.tree.setCheckedKeys(this.checkList, false);
+            }
+            if (tab.paneName === "user") {
+                this.activeName = "user"
             }
         },
         handleUserChange(userId) {
@@ -78,6 +83,7 @@ export default {
             // Fetch permissions for the selected user from your API and update your data
         },
         handleCheckChange(data, obj) {
+
         },
         handlerUpdate() {
             const roleId = this.role.rid;
@@ -98,17 +104,28 @@ export default {
                     }
                 });
                 ElMessage.success("更新成功!")
-            } else {
+            } else if(this.activeName === 'auth'){
                 var checked = [];
                 checked = this.$refs.tree.getCheckedKeys(true)
                 checked.forEach(item => {
-                    authApi.addMenuService(roleId, item)
+                    if(!this.checkList.includes(item)){
+                        authApi.addMenuService(roleId, item)
                         .then(response => {
                         })
                         .catch(error => {
-                            // 处理错误情况
                             console.error(`Error adding 权限 ${item} to role ${roleId}:`, error);
                         });
+                    }
+                });
+                this.checkList.forEach(item => {
+                    if(!checked.includes(item)){
+                        authApi.deleteMenuService(roleId,item)
+                        .then(response => {
+                        })
+                        .catch(error => {
+                            console.error(`Error adding 权限 ${item} to role ${roleId}:`, error);
+                        });
+                    }
                 });
                 ElMessage.success("更新成功!")
             }
@@ -145,7 +162,7 @@ export default {
                 .then((response) => {
                     this.menus = response.data.data;
                     this.menuTree[0].children = this.convertToTree(this.menus);
-                    console.log("menuTree:", this.menuTree)
+                    // console.log("menuTree:", this.menuTree)
                 })
                 .catch((error) => {
                     ElMessage.error('Error fetching all menus:', error);

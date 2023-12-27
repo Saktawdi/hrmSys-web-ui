@@ -43,5 +43,9 @@ export const deleteRoleService = (rID, uID) =>
   request.delete(`/api/v1/auth/role/delete/${rID}/${uID}`);
 
 // 删除角色菜单接口
-export const deleteMenuService = (id) =>
+export const deleteMenuByIDService = (id) =>
   request.delete(`/api/v1/auth/menu/delete/${id}`);
+
+// 删除角色菜单接口
+export const deleteMenuService = (rid,mid) =>
+  request.delete(`/api/v1/auth/menu/delete/${rid}/${mid}`);  

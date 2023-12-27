@@ -11,7 +11,7 @@
                 <el-input v-model="queryForm.sid"></el-input>
               </el-form-item>
               <el-form-item label="请输入关键字">
-                <el-input v-model="queryForm.key"></el-input>
+                <el-input v-model="queryForm.keyWord"></el-input>
               </el-form-item>
               <el-form-item label="请输入登记时间：">
                 <el-col :span="8">
@@ -44,7 +44,7 @@
           <el-table-column prop="sunemployment" label="失业保险" />
           <el-table-column prop="smedical" label="医疗保险" />
           <el-table-column prop="shouse" label="住房公积金" />
-          <el-table-column label="操作">
+          <el-table-column label="操作" width="240px">
             <template #default="scope">
               <el-button type="primary" @click="updateSalaryHandler(scope.row)">变更</el-button>
               <el-button type="danger" @click="deleteSalary(scope.row.sid)">删除</el-button>
@@ -356,7 +356,7 @@ export default {
         })
     },
     reLoadQueryHandler() {
-      this.form = {}
+      this.queryForm = {}
       this.fetchSalaryByStatus(1)
     },
     //计算金额
@@ -381,6 +381,10 @@ export default {
       const day = String(now.getDate()).padStart(2, '0');
       const formattedDate = `${year}-${month}-${day}`;
       return formattedDate;
+    },
+    validateDateInput(dateString) {
+      const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+      return dateRegex.test(dateString);
     },
   }
 }

@@ -20,7 +20,10 @@ const getUserPermission = async (key) => {
   auth.value.role = res1.data.data
   auth.value.permission = res2.data.data
   userStore.setUserPermission(auth.value)
-  if (key === 1) ElMessage.success("刷新角色权限成功")
+  if (key === 1){
+    getUserInfo();
+    ElMessage.success("刷新角色权限成功")
+  }
 }
 
 if (!userStore.user) {

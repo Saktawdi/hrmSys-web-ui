@@ -419,6 +419,7 @@ export default {
                             eethnic: "汉",
                             eeducation: "本科",
                         }
+                        this.form.erecoders = userStore.user.uid;
                     }).catch((error) => {
                         console.error("员工档案添加失败", error);
                         ElMessage.error("添加员工档案失败。请再试一次。");
