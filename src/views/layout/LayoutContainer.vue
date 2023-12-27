@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const router = useRouter()
 onMounted(() => {
+  // userStore.user.user_pic = "https://www.freeimg.cn/i/2023/12/27/658befd25c2f8.png"
 })
 
 const handleCommand = async (key) => {
@@ -176,7 +177,7 @@ const handleCommand = async (key) => {
 
     &__logo {
       height: 120px;
-      background: url('@/assets/logo.png') no-repeat center / 120px auto;
+      // background: url('@/assets/logo.jpg') no-repeat center / 120px auto;
     }
 
     .el-menu {

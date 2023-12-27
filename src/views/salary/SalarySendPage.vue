@@ -18,7 +18,7 @@
       </el-tab-pane>
       <el-tab-pane label="发放" name="send">
         <el-card>
-          <el-button type="primary">一键发放</el-button>
+          <el-button type="primary" @click="AutoSendHandler">一键发放</el-button>
           <el-button type="primary">定时发放</el-button>
         </el-card>
         <el-table :data="PayrollSend" style="width: 100%" border>
@@ -28,17 +28,22 @@
           <el-table-column prop="pl3InstName" label="三级机构" />
           <el-table-column prop="pcount" label="人数" />
           <el-table-column prop="psalarySum" label="基本酬薪总额" />
+          <el-table-column prop="pstatus" label="状态">
+            <template #default="scope">
+              <el-tag :type="getTagType(scope.row.pstatus)">{{ getTagName(scope.row.pstatus) }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column fixed="right" label="发放操作">
             <template #default="scope">
-              <el-button type="success" plain>发放</el-button>
-              <el-button type="danger" plain>删除</el-button>
+              <el-button type="success" plain @click="sendPayrollInfo(scope.row)">详情</el-button>
+              <el-button type="danger" plain @click="deletePayrollSend(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
     </el-tabs>
   </page-container>
-  <el-dialog v-model="dialogVisible" title="薪酬发放复核" width="60%" :before-close="handleClose">
+  <el-dialog v-model="dialogVisible" :title="'薪酬发放' + optionKey" width="80%" :before-close="handleClose">
     <el-card>
       <el-form label-position="top" label-width="100px" :model="currentPayroll" style="max-width: 460px">
         <el-row :gutter="20">
@@ -92,15 +97,15 @@
         <el-table-column prop="shouse" label="住房公积金" />
         <el-table-column prop="breward" label="奖励奖金">
           <template #default="scope">
-                  <el-input-number :controls="false" v-model="scope.row.breward" :precision="2"
-                    @change="updateBonus(scope.row)" />
-                </template>
+            <el-input-number :controls="false" v-model="scope.row.breward" :precision="2" style="width: 88px;"
+              @change="updateBonus(scope.row)" :disabled="optionKey === '详细'" />
+          </template>
         </el-table-column>
         <el-table-column prop="breduce" label="应扣奖金">
           <template #default="scope">
-                  <el-input-number :controls="false" v-model="scope.row.breduce" :precision="2"
-                    @change="updateBonus(scope.row)" />
-                </template>
+            <el-input-number :controls="false" v-model="scope.row.breduce" :precision="2" style="width: 88px;"
+              @change="updateBonus(scope.row)" :disabled="optionKey === '详细'" />
+          </template>
         </el-table-column>
       </el-table>
       <div slot="footer" class="dialog-footer">
@@ -114,15 +119,16 @@
 </template>
 
 <script>
+import * as payrollApi from "../../api/payroll"
 import { useUserStore } from '@/stores'
+import { ElMessage } from 'element-plus';
 const userStore = useUserStore();
 export default {
   data() {
     return {
       activeName: 'all',
-      PayrollAll: [
-        { pl1InstName: "一级机构", pl2InstName: "二级机构", pl3InstName: "三级机构", pcount: 8, psalarySum: 5000 }
-      ],//未复核列表
+      optionKey: "复核",
+      PayrollAll: [],//未复核列表
       PayrollSend: [],//复核后待发放列表
       currentPayroll: {},//表单
       currentPayrollTable: [],//该发放单旗下的所有档案
@@ -130,38 +136,162 @@ export default {
     }
   },
   mounted() {
-
+    this.feachLivePayrollList();
   },
   methods: {
     //tab变更
     handleClick(tab, event) {
       if (tab.paneName === "all") {
         this.activeName = 'all'
-
+        this.optionKey = '复核'
+        this.feachLivePayrollList();
       }
       if (tab.paneName === "send") {
         this.activeName = "send"
-
+        this.optionKey = '详细'
+        this.feachPayrollSendList();
       }
     },
+    feachLivePayrollList() {
+      payrollApi.getAllPayrollsService()
+        .then((response) => {
+          this.PayrollAll = response.data.data
+        })
+        .catch((error) => {
+          ElMessage.error("获取失败,", error)
+        })
+    },
+    feachPayrollSendList() {
+      payrollApi.getStaticPayrollsService()
+        .then((response) => {
+          this.PayrollSend = response.data.data;
+        })
+        .catch((error) => {
+          ElMessage.error("获取失败,", error)
+        })
+    },
+    //发放按钮：查看详细
+    sendPayrollInfo(data) {
+      // this.optionKey = '详情'
+      this.dialogVisible = true;
+      this.currentPayroll = data;
+      console.log("data.pPayslips", data.ppayslips)
+      this.currentPayrollTable = JSON.parse(data.ppayslips)
+    },
+    //删除待发放单
+    deletePayrollSend(data) {
+      ElMessageBox.confirm('你确定要删除吗?', '注意', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          payrollApi.deleteStaticPayrollService(data.pid)
+            .then(() => {
+              ElMessage.success('删除成功');
+              this.feachPayrollSendList();
+            })
+            .catch((error) => {
+              ElMessage.error('删除失败', error);
+            });
+        })
+        .catch(() => {
+          // User clicked '取消' or closed the dialog
+          // No action needed
+        });
+    },
     //登记复核提交->持久化
-    confirmHandler(){
-      const payrollTabelJson =  JSON.stringify(this.currentPayrollTable);
-
+    async confirmHandler() {
+      if (this.optionKey === '复核') {
+        const payrollTabelJson = JSON.stringify(this.currentPayrollTable);
+        this.currentPayroll['ppayslips'] = payrollTabelJson;
+        await payrollApi.addPayrollService(this.currentPayroll)
+          .then((response) => {
+            ElMessage.success("复核通过")
+            this.dialogVisible = false;
+          })
+          .catch((error) => {
+            ElMessage.error("复核失败,", error)
+          })
+      } else if (this.optionKey === '详细') {
+        payrollApi.updateStaticPayrollByID(this.currentPayroll.pid, 1)
+          .then((response) => {
+            ElMessage.success("发放成功")
+            this.dialogVisible = false;
+            this.feachPayrollSendList();
+          })
+          .catch((error) => {
+            ElMessage.error("发放失败，", error)
+          })
+      }
+    },
+    //一键发放
+    AutoSendHandler() {
+      const loading = ElLoading.service({
+        lock: true,
+        text: '正在奋力发送中......',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+      this.PayrollSend.forEach(item => {
+        payrollApi.updateStaticPayrollByID(item.pid, 1)
+          .then((response) => {
+            this.feachPayrollSendList();
+          })
+          .catch((error) => {
+            ElMessage.error("发放失败，", error)
+            loading.close();
+          })
+      });
+      loading.close();
     },
     //登记详情里更改对应奖金：
-    updateBonus(data){
-      data.eid
-      data.breward
-      data.breduce
-
+    updateBonus(data) {
+      const bonusData = {
+        "eid": data.eid,
+        "breward": data.breward,
+        "breduce": data.breduce
+      }
+      payrollApi.updateBonusesService(bonusData)
+        .then((response) => {
+          ElMessage.success("更改成功")
+        })
+        .catch((error) => {
+          ElMessage.error("更改失败", error)
+        })
     },
     //登记
-    addPayrollHandler(data) {
+    async addPayrollHandler(data) {
       this.dialogVisible = true;
       this.currentPayroll = data;
       this.currentPayroll.pmaker = userStore.user.uid;
-    }
+      await payrollApi.getPayslipsService(data.pl3InstID)
+        .then((response) => {
+          this.currentPayrollTable = response.data.data;
+        })
+        .catch((error) => {
+          ElMessage.error("查询详细失败", error)
+        })
+    },
+    getTagType(pstatus) {
+      switch (pstatus) {
+        case 1:
+          return 'success';
+        case 0:
+          return 'warning';
+        default:
+          return 'info';
+      }
+    },
+    getTagName(pstatus) {
+      switch (pstatus) {
+        case 1:
+          return '已发放';
+        case 0:
+          return '未发放';
+        default:
+          return 'N/A';
+      }
+    },
   },
 }
 </script>

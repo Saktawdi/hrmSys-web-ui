@@ -412,7 +412,13 @@ export default {
                 if (valid) {
                     employeeApi.addEmployeeService(this.form).then(() => {
                         ElMessage.success("员工档案添加成功");
-                        this.form = {}
+                        this.form = {
+                            erecoders: "-1",
+                            eavatar: "",
+                            egender: "男",
+                            eethnic: "汉",
+                            eeducation: "本科",
+                        }
                     }).catch((error) => {
                         console.error("员工档案添加失败", error);
                         ElMessage.error("添加员工档案失败。请再试一次。");
@@ -437,10 +443,11 @@ export default {
 </script>
   
 <style scoped>
-.avatar{
+.avatar {
     max-height: 64px;
     max-width: 64px;
 }
+
 .avatar-uploader-icon {
     width: 64px;
     height: 64px;
