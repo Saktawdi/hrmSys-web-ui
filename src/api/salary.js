@@ -19,26 +19,37 @@ import request from '@/utils/request.js'
 
 
 // 修改薪资标准接口
-export const editSalaryService = (salaryData) =>
-  request.put('/api/v1/salary', salaryData)
+export const updateSalaryService = (salaryData) =>
+  request.put('/api/v1/salary/update', { ...salaryData });
+
+// 薪资标准审核接口
+export const approveSalaryService = (salaryData) =>
+  request.put('/api/v1/salary/approved', { ...salaryData });
+
+// 根据薪资标准编号审核接口
+export const approveSalaryByIdService = (sID) =>
+  request.put(`/api/v1/salary/approvedByID/${sID}`);
+
+// 根据多个查询条件获取薪资标准列表接口
+export const getSalariesByConditionsService = (conditions) =>
+  request.post('/api/v1/salary/getByConditions', conditions);
 
 // 新增薪资标准接口
 export const addSalaryService = (salaryData) =>
-  request.post('/api/v1/salary', salaryData)
-
-// 根据薪资标准编号获取详细信息接口
-export const getSalaryInfoService = (sID) =>
-  request.get(`/api/v1/salary/${sID}`)
+  request.post('/api/v1/salary/add', { ...salaryData });
 
 // 根据薪酬状态获取薪资标准列表接口
-export const getSalaryByStatusService = (sStatus) =>
-request.get(`/api/v1/salary/getByStatus/${sStatus}`)
-  
-
-// 删除薪资标准接口
-export const removeSalaryService = (sID) =>
-  request.delete(`/api/v1/salary/${sID}`)
+export const getAllSalariesByStatusService = (sStatus) =>
+  request.get(`/api/v1/salary/getByStatus/${sStatus}`);
 
 // 获取薪资标准列表接口
-export const getSalaryListService = () =>
-  request.get('/api/v1/salary/getAll')
+export const getAllSalariesService = () =>
+  request.get('/api/v1/salary/getAll');
+
+// 根据薪资标准编号获取详细信息接口
+export const getSalaryByIdService = (sID) =>
+  request.get(`/api/v1/salary/get/${sID}`);
+
+// 删除薪资标准接口
+export const deleteSalaryService = (sID) =>
+  request.delete(`/api/v1/salary/delete/${sID}`);

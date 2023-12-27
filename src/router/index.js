@@ -72,21 +72,13 @@ const router = createRouter({
           component: () => import('@/views/position/PositionPage.vue')
         },
         {
-          path: '/salary/add', //薪酬登记
-          component: () => import('@/views/salary/SalaryRegister.vue')
+          path:"/salary",//薪酬管理
+          component: () => import('@/views/salary/SalaryPage.vue')
         },
         {
-          path: '/salary/review', //薪酬复核
-          component: () => import('@/views/salary/SalaryReview.vue')
+          path:"/salary/send",//薪酬发放
+          component: () => import('@/views/salary/SalarySendPage.vue')
         },
-        {
-          path: '/salary/pay', //薪酬发放
-          component: () => import('@/views/salary/SalaryPay.vue')
-        },
-        {
-          path: '/salary/paydetail', //薪酬发放明细
-          component: () => import('@/views/salary/SalaryPayDetail.vue')
-        }
       ]
     }
   ]

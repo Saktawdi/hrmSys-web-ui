@@ -3,6 +3,14 @@
         <div>
             <el-form :model="form" :rules="rules" ref="hrForm" label-width="100px"
                 action="/hr/hr_archives_manage/hr_archives_register" method="post">
+                <!-- 第0行 -->
+                <el-row :gutter="20">
+                    <el-col>
+                        <el-form-item label="档案编号" prop="eid">
+                            <el-input v-model="form.eid" disabled = "true"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
                 <!-- 第一行 -->
                 <el-row :gutter="20">
                     <el-col :span="8">
@@ -306,7 +314,7 @@ export default {
             this.$router.push(this.parentPath)
         },
         async fetchSalaryList() {
-            await salary.getSalaryByStatusService(1)
+            await salary.getAllSalariesByStatusService(1)
                 .then((response) => {
                     this.salaryBasic = response.data.data;
                     this.salaryBasic.forEach(item => {

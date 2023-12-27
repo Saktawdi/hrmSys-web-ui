@@ -99,7 +99,7 @@ const handleCommand = async (key) => {
             <el-icon><GoldMedal /></el-icon>
             <span>薪酬管理</span>
           </template>
-          <el-menu-item index="/salary/basic">
+          <el-menu-item index="/salary">
             <el-icon><Histogram /></el-icon>
             <span>薪酬标准</span>
           </el-menu-item>

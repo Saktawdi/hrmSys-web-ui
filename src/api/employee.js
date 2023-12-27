@@ -58,9 +58,9 @@ export const approveEmployeeService = (employeeData) =>
 export const approveEmployeeByIdService = (eID) =>
   request.put(`/api/v1/employee/approvedByID/${eID}`);
 
-// 根据条件查询员工档案
+// 多条件查询档案
 export const getEmployeesByConditionsService = (conditions) =>
-  request.get('/api/v1/employee/getByConditions', conditions);
+  request.post('/api/v1/employee/getByConditions', {...conditions});
 
 // 新增员工档案
 export const addEmployeeService = (employeeData) =>

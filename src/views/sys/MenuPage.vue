@@ -5,19 +5,23 @@
         <el-button v-if="permissions.indexOf('menu.add') > -1 || permissions.indexOf('menu.*') > -1" type="primary"
           @click="addMenu">新增菜单</el-button>
       </el-card>
-      <el-table :data="menus" style="width: 100%">
+      <el-table :data="menusTree" lazy 
+      :load="loadData" 
+      row-key="id"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      style="width: 100%">
         <el-table-column prop="id" label="菜单 ID"></el-table-column>
-        <el-table-column prop="parentId" label="父级菜单id"></el-table-column>
+        <!-- <el-table-column prop="parentId" label="父级菜单id"></el-table-column> -->
         <el-table-column prop="mname" label="菜单名称"></el-table-column>
         <el-table-column prop="mcode" label="菜单编码"></el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
+            <el-button type="success" @click="plusMenu(scope.row)" plain>新增下级</el-button>
             <el-button type="primary" @click="editMenu(scope.row)">编辑</el-button>
             <el-button type="danger" @click="deleteMenu(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-
       <el-dialog v-model="dialogVisible" :title="optionKey + '菜单'">
         <el-form :model="currentMenu" :rules="menuRules" ref="menuForm" label-width="80px">
           <el-form-item label="菜单 ID" prop="id">
@@ -49,11 +53,12 @@
 import * as menuApi from "../../api/menu";
 import { useUserStore } from '@/stores';
 const userStore = useUserStore();
-
+//TODO:更新树形结构
 export default {
   data() {
     return {
       menus: [],
+      menusTree:[],//树形结构
       dialogVisible: false,
       currentMenu: {
         parentId: null,
@@ -68,12 +73,67 @@ export default {
     };
   },
   methods: {
+    findFirstLevel(list) {
+            // 记录所有的parentId和id
+            const allParentId = [];
+            const allId = [];
+            list.forEach((item) => {
+                if (!allParentId.includes(item.parentId)) {
+                    allParentId.push(item.parentId);
+                }
+                if (!allId.includes(item.id)) {
+                    allId.push(item.id);
+                }
+            });
+            // 先筛选出 父节点在所有数据中不存在的 --无父节点 --顶层节点
+            this.menusTree = list.filter((item) => !allId.includes(item.parentId));
+            // 再判断顶级节点是否有孩子 --hasChildren的值的判断
+            this.menusTree.forEach((item) => {
+                if (allParentId.includes(item.id)) {
+                    item.hasChildren = true;
+                }
+            });
+        },
+        loadData(row, treeNode, resolve) {
+            resolve(this.flagChildren(this.menus, row));
+        },
+        //判断数组中有没有自己的孩子 -- 返回一个加上是否有孩子标识字段的孩子数组
+        flagChildren(list, parentItem, config = {}) {
+            // list是扁平化数组  parentItem是点击的行的数据对象 config是参数配置
+            config = Object.assign({}, { id: "id", parentId: "parentId" }, config);
+            const allParentId = [];
+            list.forEach((item) => {
+                if (!allParentId.includes(item[config.parentId])) {
+                    allParentId.push(item[config.parentId]);
+                }
+            });
+            // 筛选出是这个节点孩子的 节点的数组
+            const childrenArr = list.filter((item) => {
+                return item[config.parentId] == parentItem[config.id];
+            });
+            childrenArr.forEach((item) => {
+                // console.log("遍历孩子对象：",item)
+                if (allParentId.includes(item[config.id])) {
+                    // 证明有孩子节点
+                    item["hasChildren"] = true;
+                }
+            });
+            return childrenArr;
+    },
     getAllMenus() {
       menuApi.getAllMenusService().then((response) => {
         this.menus = response.data.data;
+        this.findFirstLevel(this.menus)
       }).catch((error) => {
         console.error('Error fetching menus:', error);
       });
+    },
+    plusMenu(data){
+      this.currentMenu = {};
+      this.currentMenu.parentId = data.id;
+      this.currentMenu.mcode = data.mcode.split('.')[0] + '.';
+      this.optionKey = "新增";
+      this.dialogVisible = true;
     },
     addMenu() {
       this.currentMenu = {};

@@ -5,13 +5,12 @@
                 <el-button v-if="permissions.indexOf('position.add') > -1 ||
                     permissions.indexOf('position.*') > -1
                     " type="primary" @click="addPosition" style="margin-bottom: 20px">新增职位</el-button>
-
-                <div>
+                <!-- <div>
                     <el-input style="width: 200px" prop="pID"></el-input>
                     <el-button style="margin-right: 20px">按id搜索职位</el-button>
                     <el-input style="width: 200px"></el-input>
                     <el-button>按分类搜索职位</el-button>
-                </div>
+                </div> -->
             </el-card>
             <el-table :data="position" style="width: 100%">
                 <el-table-column prop="pid" label="职位ID"></el-table-column>
@@ -95,12 +94,12 @@ export default {
                 if (valid) {
                     if (this.currentMenu.pid) {
                         positionApi.updatePositionService(this.currentMenu)
-                            .then(() => {
+                        .then(() => {
                                 ElMessage.success('菜单更新成功')
                                 this.getAllPosition()
                                 this.dialogVisible = false
                             })
-                            .catch((error) => {
+                        .catch((error) => {
                                 console.error('更新菜单时出错:', error)
                             })
                     } else {

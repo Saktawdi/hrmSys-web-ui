@@ -4,7 +4,7 @@
       <div class="app-container">
         <el-card>
           <!-- 多条件查询操作栏 -->
-          <el-form :inline="true" :model="form" class="query-form">
+          <el-form :inline="true" :model="form" :rules="queryRule" class="query-form">
             <el-row>
               <el-form-item label="I级机构" prop="el1InstID">
                 <el-select v-model="form.el1InstID" placeholder="请选择" @change="chooseInstitution(1, form.el1InstID)">
@@ -43,13 +43,13 @@
                 <!-- <el-date-picker v-model="form.filingTimeRange" type="daterange" range-separator="至"
                   start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd"
                   :picker-options="pickerOptions"></el-date-picker> -->
-                  <el-col :span="8">
-                    <el-input v-model="form.StartRecodDate" placeholder="YYYY-MM-DD"></el-input>
-                  </el-col>
-                    至
-                  <el-col :span="8">
-                    <el-input v-model="form.EndRecodDate" placeholder="YYYY-MM-DD"></el-input>
-                  </el-col>
+                <el-col :span="8">
+                  <el-input v-model="form.StartRecodDate" placeholder="YYYY-MM-DD"></el-input>
+                </el-col>
+                至
+                <el-col :span="8">
+                  <el-input v-model="form.EndRecodDate" placeholder="YYYY-MM-DD"></el-input>
+                </el-col>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="handleQuery">查询</el-button>
@@ -95,6 +95,7 @@
 </template>
 
 <script>
+import { ElMessage } from 'element-plus'
 import * as employeeApi from "../../api/employee"
 import { getInstitutionByLevelService, getInstitutionByLevelAndParentService } from "../../api/institution"
 import { getPositionListService } from "../../api/position"
@@ -106,6 +107,7 @@ export default {
       dialogVisible: false,
       currentEmployee: [],
       form: {}, //查询表单
+      queryRule: [],//规则
       institution: [
         [],
         [],
@@ -131,13 +133,35 @@ export default {
         },
       });
     },
-    resetQueryForm(){
-      this.form={}
+    resetQueryForm() {
+      this.form = {}
       this.selectedPositions = []
+      this.fetchAllEmployees();
     },
-    //TODO:等待后端接口修复bug+校验建档时间格式yyyy-mm-dd
-    handleQuery(){
-
+    handleQuery() {
+      if (this.form.StartRecodDate || this.form.EndRecodDate) {
+        if (!this.validateDateInput(this.form.StartRecodDate)) {
+          ElMessage.error("请输入有效的开始日期（YYYY-MM-DD）");
+          return;
+        }
+        if (!this.validateDateInput(this.form.EndRecodDate)) {
+          ElMessage.error("请输入有效的结束日期（YYYY-MM-DD）");
+          return;
+        }
+      }
+      console.log("查询：",this.form)
+      employeeApi.getEmployeesByConditionsService(this.form)
+        .then((response) => {
+          this.employees = response.data.data;
+          ElMessage.success(response.data.msg)
+        })
+        .catch((error) => {
+          ElMessage.error("错误:", error)
+        })
+    },
+    validateDateInput(dateString) {
+      const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+      return dateRegex.test(dateString);
     },
     async deleteConfirm() {
       await employeeApi

@@ -39,6 +39,9 @@ instance.interceptors.response.use(
       ElMessage.warning('登录失效，请重新登录')
       return Promise.reject(res.data)
     }
+    if(res.data.code === 500 && res.data.msg === '数据已存在'){
+      return Promise.reject(res.data)
+    }
     ElMessage.error(res.data.msg || '服务异常')
     return Promise.reject(res.data)
   },

@@ -398,7 +398,7 @@ export default {
         },
 
         fetchSalaryList() {
-            salary.getSalaryByStatusService(1)
+            salary.getAllSalariesByStatusService(1)
                 .then((response) => {
                     this.salaryBasic = response.data.data;
                 })
@@ -412,6 +412,7 @@ export default {
                 if (valid) {
                     employeeApi.addEmployeeService(this.form).then(() => {
                         ElMessage.success("员工档案添加成功");
+                        this.form = {}
                     }).catch((error) => {
                         console.error("员工档案添加失败", error);
                         ElMessage.error("添加员工档案失败。请再试一次。");

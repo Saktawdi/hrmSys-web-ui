@@ -93,7 +93,7 @@ export default {
                             })
                             .catch(error => {
                                 // 处理错误情况
-                                ElMessage.error(`Error adding user ${uid} to role ${roleId}:`, error);
+                                console.error(`Error adding user ${uid} to role ${roleId}:`, error);
                             });
                     }
                 });
@@ -107,7 +107,7 @@ export default {
                         })
                         .catch(error => {
                             // 处理错误情况
-                            ElMessage.error(`Error adding 权限 ${item} to role ${roleId}:`, error);
+                            console.error(`Error adding 权限 ${item} to role ${roleId}:`, error);
                         });
                 });
                 ElMessage.success("更新成功!")
@@ -137,7 +137,7 @@ export default {
                     this.loding = false;
                 })
                 .catch((error) => {
-                    console.error('Error fetching selected users for the role:', error);
+                    console.error('获取角色的选定用户时出错:', error);
                 });
         },
         fetchAllMenus() {

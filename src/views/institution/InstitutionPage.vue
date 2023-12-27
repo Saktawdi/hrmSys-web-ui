@@ -8,7 +8,7 @@
             </el-card>
             <el-table :data="institutionTree" lazy :load="loadData" row-key="iid"
                 :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
-                <!-- <el-table-column prop="iid" label="序号"></el-table-column> -->
+                <el-table-column prop="iid" label="机构编号"></el-table-column>
                 <!-- <el-table-column prop="iparent" label="父级机构"></el-table-column> -->
                 <el-table-column prop="ilevel" label="机构等级">
                     <template #default="scope">
@@ -18,6 +18,7 @@
                 <el-table-column prop="iname" label="机构名称"></el-table-column>
                 <el-table-column label="操作">
                     <template #default="scope">
+                        <el-button type="success" plain @click="plusInstitution(scope.row)">新增下级</el-button>
                         <el-button type="primary" @click="editInstitution(scope.row)">编辑</el-button>
                         <el-button type="danger" @click="deleteInstitution(scope.row.iid)">删除</el-button>
                     </template>
@@ -78,15 +79,18 @@ export default {
             loding: true // 加载
         }
     },
-
+    mounted() {
+        this.getAllInstitution()
+        this.permissions = userStore.auth.permission
+    },
     methods: {
         getTagType(ilevel) {
             switch (ilevel) {
-                case "1":
+                case 1:
                     return 'danger';
-                case "2":
+                case 2:
                     return 'warning';
-                case "3":
+                case 3:
                     return 'success';
                 default:
                     return 'info';
@@ -105,7 +109,6 @@ export default {
                     console.error('获取机构时出错:', error)
                 })
         },
-        //TODO:树形结构转换
         findFirstLevel(list) {
             // 记录所有的parentId和id
             const allParentId = [];
@@ -145,13 +148,20 @@ export default {
                 return item[config.iparent] == parentItem[config.iid];
             });
             childrenArr.forEach((item) => {
-                console.log("遍历孩子对象：",item)
+                // console.log("遍历孩子对象：",item)
                 if (allParentId.includes(item[config.iid])) {
                     // 证明有孩子节点
                     item["hasChildren"] = true;
                 }
             });
             return childrenArr;
+        },
+        plusInstitution(data){
+            this.currentMenu = {}
+            this.currentMenu.iparent = data.iid
+            this.currentMenu.ilevel = data.ilevel + 1
+            this.optionKey = '新增'
+            this.dialogVisible = true
         },
         addInstitution() {
             this.currentMenu = {}
@@ -218,27 +228,6 @@ export default {
                 });
         },
     },
-
-    // getInstitutionByiParent(iparent) {
-    //     institutionApi
-    //         .getInstitutionByiParentService(iparent)
-    //         .then(() => {
-    //             ElMessage.success('成功获取父类信息')
-    //             this.getAllInstitution()
-    //         })
-    //         .catch((error) => {
-    //             console.error('获取父类信息时出错:', error)
-    //         })
-    // },
-    //TODO:根据机构编号判断是否为父类
-    //TODO:根据父类ID获取机构详细信息
-    //TODO:根据等级和父类ID获取机构详细信息
-    //TODO:根据机构编号获取详细信息
-    //TODO:根据等级获取机构详细信息
-    mounted() {
-        this.getAllInstitution()
-        this.permissions = userStore.auth.permission
-    }
 }
 </script>
   
