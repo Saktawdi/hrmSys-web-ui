@@ -3,8 +3,11 @@
 ## 项目简介
 
 **hrmSys-web-ui** 是一个基于 Vue 3 和 Vite 构建的开源项目，用于实现人事管理系统的前端界面。该项目采用了现代化的前端技术栈，包括 Element Plus UI 框架、Axios 进行网络请求、Pinia 状态管理等。
-
 后端：https://github.com/Saktawdi/hrmSys
+
+项目体验地址：http://hrms.sakta.top/
+体验账号：123456
+pwd:123456
 
 ## 依赖项
 
