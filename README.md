@@ -48,7 +48,7 @@ pwd:123456
 3. **访问项目**: 打开浏览器并访问 [http://localhost:3000](http://localhost:3000) 查看项目。
 
 ## 一些界面展示
-
+![](https://picdl.sunbangyan.cn/2024/01/01/443d248c4b14bae8d35161aeaff5eaf1.jpeg)
 ![1703678996474.png](https://www.freeimg.cn/i/2023/12/27/658c144d34386.png)
 ![1703678983818.png](https://www.freeimg.cn/i/2023/12/27/658c144d41813.png)
 ![1703678948140.png](https://www.freeimg.cn/i/2023/12/27/658c144d21452.png)
